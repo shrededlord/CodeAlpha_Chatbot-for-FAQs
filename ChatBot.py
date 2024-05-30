@@ -33,3 +33,40 @@ def greeting (sentence):
         if word.lower() in GREETING_INPUTS:
             return random.choice(GREETING_RESPONSES)
         
+def response (user_response):
+    chatbot_response=""
+    sent_tokens.append(user_response)
+    TfidfVec=TfidfVectorizer(tokenizer=LemNormalize, stop_words='english')
+    tfidf = TfidfVec.fit_transform(sent_tokens)
+    vals = cosine_similarity(tfidf[-1], tfidf)
+    idx=vals.argsort()[0][-2]
+    flat= vals.flatten()
+    flat.sort()
+    req_tfidf=flat[-2]
+    if(req_tfidf==0):
+        chatbot_response = chatbot_response+"I am sorry! I don't understand you."
+        return chatbot_response
+    else:
+        chatbot_response = chatbot_response+sent_tokens[idx]
+        return chatbot_response
+
+if __name__=="__main__":
+    flag=True
+    print("Chatbot: My name is Chatbot. I will answer your queries about Chatbots. If you want to exit, type Bye!")
+    while(flag==True):
+        user_response=input("Input: ")
+        user_response=user_response.lower()
+        if (user_response!='bye'):
+            if (user_response == 'thanks' or user_response == 'thank you'):
+                flag=False
+                print("Chatbot: You are welcome..")
+            else:
+                if (greeting(user_response)!=None):
+                    print("Chatbot: "+greeting(user_response))
+                else:
+                    print("Chatbot:",end="")
+                    print (response(user_response))
+                    sent_tokens.remove(user_response)
+        else:
+            flag=False
+            print("Chatbot: Bye! take care..")
